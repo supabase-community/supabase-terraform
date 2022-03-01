@@ -40,6 +40,10 @@ resource "docker_volume" "kong_data" {
   name = "kong_data"
 }
 
+resource "docker_volume" "storage_data" {
+  name = "storage_data"
+}
+
 resource "docker_network" "supabase-network" {
   name = "supabase-network"
 }
@@ -224,9 +228,43 @@ resource "docker_container" "supabase-realtime" {
     "SLOT_NAME=supabase_realtime_rls",
     "TEMPORARY_SLOT=true"
   ]
-  # command = [
-  #   "> bash -c './prod/rel/realtime/bin/realtime eval Realtime.Release.migrate && ./prod/rel/realtime/bin/realtime start'"
-  # ]
+}
+
+resource "docker_container" "supabase-storage" {
+  image = "supabase/storage-api:v0.10.0"
+  name  = "supabase-storage"
+  depends_on = [
+    docker_container.supabase-postgres,
+    docker_container.supabase-rest,
+    null_resource.db_setup_03
+  ]
+  ports {
+    internal = 5000
+    # external = 5000
+  }
+  networks_advanced {
+    name    = "supabase-network"
+    aliases = ["supabase-storage"]
+  }
+  mounts {
+    source = docker_volume.storage_data.name
+    target = "/var/lib/storage"
+    type   = "volume"
+  }
+  env = [
+    "ANON_KEY=${var.ANON_KEY}",
+    "SERVICE_KEY=${var.SERVICE_ROLE_KEY}",
+    "POSTGREST_URL=http://rest:3000",
+    "PGRST_JWT_SECRET=${var.JWT_SECRET}",
+    "DATABASE_URL=postgres://${var.POSTGRES_USER}:${var.POSTGRES_PASSWORD}@${var.POSTGRES_HOST}:${var.POSTGRES_PORT}/postgres",
+    "PGOPTIONS=-c search_path=storage,public",
+    "FILE_SIZE_LIMIT=52428800", // Value in bytes
+    "STORAGE_BACKEND=file",
+    "FILE_STORAGE_BACKEND_PATH=/var/lib/storage",
+    "TENANT_ID=stub",
+    "REGION=stub",
+    "GLOBAL_S3_BUCKET=stub",
+  ]
 }
 
 resource "docker_container" "supabase-auth" {

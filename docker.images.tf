@@ -14,6 +14,11 @@ resource "docker_image" "supabase-postgres" {
   keep_locally = true
 }
 
+resource "docker_image" "supabase-storage" {
+  name         = "supabase/storage-api:v0.10.0"
+  keep_locally = true
+}
+
 resource "docker_image" "supabase-studio" {
   name         = "supabase/studio:latest"
   keep_locally = true

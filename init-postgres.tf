@@ -1,7 +1,7 @@
-resource "time_sleep" "sleep_10" {
+resource "time_sleep" "sleep_wait" {
   depends_on = [docker_container.supabase-postgres]
 
-  create_duration = "10s"
+  create_duration = "20s"
 }
 
 resource "null_resource" "db_setup_00" {
@@ -10,7 +10,7 @@ resource "null_resource" "db_setup_00" {
   }
   depends_on = [
     docker_container.supabase-postgres,
-    time_sleep.sleep_10
+    time_sleep.sleep_wait
   ]
   # depends_on = ["postgresql_role.readwrite_role", "postgresql_role.readonly_role"]
 }
@@ -23,7 +23,7 @@ resource "null_resource" "db_setup_01" {
   depends_on = [
     docker_container.supabase-postgres,
     null_resource.db_setup_00,
-    time_sleep.sleep_10
+    time_sleep.sleep_wait
   ]
   # depends_on = ["postgresql_role.readwrite_role", "postgresql_role.readonly_role"]
 }
@@ -36,7 +36,7 @@ resource "null_resource" "db_setup_02" {
   depends_on = [
     docker_container.supabase-postgres,
     null_resource.db_setup_01,
-    time_sleep.sleep_10
+    time_sleep.sleep_wait
   ]
   # depends_on = ["postgresql_role.readwrite_role", "postgresql_role.readonly_role"]
 }
@@ -49,7 +49,7 @@ resource "null_resource" "db_setup_03" {
   depends_on = [
     docker_container.supabase-postgres,
     null_resource.db_setup_02,
-    time_sleep.sleep_10
+    time_sleep.sleep_wait
   ]
   # depends_on = ["postgresql_role.readwrite_role", "postgresql_role.readonly_role"]
 }
