@@ -1,3 +1,7 @@
+resource "docker_volume" "watchtower_config" {
+  name = "watchtower-config"
+}
+
 resource "docker_image" "watchtower" {
   name         = "containrrr/watchtower:latest"
   keep_locally = true
@@ -12,4 +16,33 @@ resource "docker_container" "watchtower" {
     internal = 8080
     external = 8091
   }
+
+  mounts {
+    source    = "/var/run/docker.sock"
+    target    = "/var/run/docker.sock"
+    type      = "bind"
+    read_only = true
+  }
+
+  mounts {
+    source = docker_volume.watchtower_config.name
+    target = "/config"
+    type   = "volume"
+  }
+
+  upload {
+    content = templatefile(abspath("${path.module}/volumes/watchtower/config.json.tpl"), {
+      GHCR_IO_TOKEN = var.GHCR_IO_TOKEN,
+    })
+    file = "/config/config.json"
+  }
+
+  env = [
+    "WATCHTOWER_CLEANUP=true",
+    "WATCHTOWER_DEBUG=true",
+    "WATCHTOWER_INCLUDE_STOPPED=true",
+    "DOCKER_CONFIG=/config",
+    "HTTP-API-UPDATE=true",
+    "WATCHTOWER_HTTP_API_TOKEN=${var.WATCHTOWER_HTTP_API_TOKEN}",
+  ]
 }

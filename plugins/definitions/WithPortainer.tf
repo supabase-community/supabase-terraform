@@ -5,9 +5,10 @@ resource "docker_image" "portainer" {
 }
 
 resource "docker_container" "portainer" {
-  image = "cr.portainer.io/portainer/portainer-ce:latest"
-  name  = "portainer"
-  count = var.USE_PORTAINER ? 1 : 0
+  image   = "cr.portainer.io/portainer/portainer-ce:latest"
+  name    = "portainer"
+  count   = var.USE_PORTAINER ? 1 : 0
+  restart = "always"
   ports {
     internal = 8000
     external = 44997

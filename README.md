@@ -16,8 +16,9 @@ Known issues such as this will be resolved in due course.
 4. You should ensure that you change any which are marked as sensitive
 5. Once you have made your changes, save the file, and then rename it to `dotenv.tf`
    a. You can rename it to any filename as long as the file extension it `.tf`, but `dotenv.tf` is already included in `.gitignore` so you won't accidentally commit it
-6. Run `terraform init` from the root of this repo
-7. Run `terraform apply` and type `yes` when prompted
+6. Repeat steps 2 through 5 for the `./plugins/defintions/dotenv.tf.example` file
+7. Run `terraform init` from the root of this repo
+8. Run `terraform apply` and type `yes` when prompted
 
 To stop the stack, type `terraform destroy` and type `yes` when prompted.
 
@@ -36,11 +37,15 @@ This repo provides a 'plugin' system which allows you to add some common Docker 
 
 Inside the `./plugins/definitions` folder, you will find a `provider.tf` file. This file is where you can control which plugins are enabled.
 
+Plugin secret environmental variables can be set in`./plugins/definitions/dotenv.tf.example`. Rename to `dotenv.tf` before attempting to run `terraform` commands.
+
 For example, there is a `USE_PORTAINER` variable block. Inside this block, there is a `default` field. By setting the value of this field to `true`, you will enable the download and provisioning of the Portainer image and container.
 
 - **Current plugins**
   - Portainer (disabled by default)
   - Watchtower (disabled by default)
+    - Environment variable options: https://containrrr.dev/watchtower/arguments/
+    - HTTP API (to trigger image and container updates): https://containrrr.dev/watchtower/http-api-mode/
 
 ###Adding a new plugin
 
@@ -78,6 +83,8 @@ resource "docker_container" "plugin" {
 
 **The above is just an example!**
 The most important part is ensuring that the `count` property of all resources is set to `1` if your variable is `true`, and `0` if it is `false`.
+
+If your container requires any secret environmental variables, place them in `./plugins/defintions/dotenv.tf`.
 
 ### Additional information
 

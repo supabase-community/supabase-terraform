@@ -1,0 +1,13 @@
+variable "WATCHTOWER_HTTP_API_TOKEN" {
+  description = "Set this to a long random value. Sending a request to the Watchtower API with this token will trigger a pull of containers."
+  type        = string
+  default     = ""
+  sensitive   = true
+}
+
+variable "GHCR_IO_TOKEN" {
+  description = "If you're pulling images from Github Container Registry, set your token here (https://docs.github.com/en/packages/working-with-a-github-packages-registry/working-with-the-container-registry#authenticating-to-the-container-registry)"
+  type        = string
+  default     = ""
+  sensitive   = true
+}
