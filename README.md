@@ -11,7 +11,7 @@ Known issues such as this will be resolved in due course.
 ### Instructions
 
 1. Install the Terraform CLI - instructions at https://www.terraform.io/downloads
-2. Open up `dotenv.tf.example` file (in this repo) in your code editor
+2. Open up `./supabase/definitions/dotenv.tf.example` file (in this repo) in your code editor
 3. Inside, you will find all the variables that are used to setup the Supabase stack
 4. You should ensure that you change any which are marked as sensitive
 5. Once you have made your changes, save the file, and then rename it to `dotenv.tf`
@@ -29,6 +29,55 @@ If you're still having trouble, you can remove the Terraform dependencies and pa
 - `terraform.tfstate` file
 - `terraform.tfstate.backup` file
 - `terraform.lock.hcl` file
+
+### Plugins
+
+This repo provides a 'plugin' system which allows you to add some common Docker images and containers to the project.
+
+Inside the `./plugins/definitions` folder, you will find a `provider.tf` file. This file is where you can control which plugins are enabled.
+
+For example, there is a `USE_PORTAINER` variable block. Inside this block, there is a `default` field. By setting the value of this field to `true`, you will enable the download and provisioning of the Portainer image and container.
+
+- **Current plugins**
+  - Portainer (disabled by default)
+  - Watchtower (disabled by default)
+
+###Adding a new plugin
+
+First, you need to ensure that it is possible to toggle the plugin. To do this, add a new `variable` block in `./plugins/definitions/provider.tf`;
+
+```
+variable "USE_PLUGIN" {
+  type        = bool
+  default     = false
+  description = "Set default to true if you want to add <Plugin name> to the deployment"
+}
+```
+
+Then create a new file with a `.tf` extension in the `./plugins/definitions` folder. This file should be named `With<Plugin>.tf` (replace `<plugin>` with the name of your plugin).
+
+Add your Docker images and containers as resources:
+
+```
+resource "docker_image" "plugin" {
+  name         = "myorganisation/plugin:latest"
+  keep_locally = true
+  count        = var.USE_PLUGIN ? 1 : 0
+}
+
+resource "docker_container" "plugin" {
+  count = var.USE_PLUGIN ? 1 : 0
+  image = "myorganisation/plugin:latest"
+  name  = "plugin"
+  ports {
+    internal = 11111
+    external = 11111
+  }
+}
+```
+
+**The above is just an example!**
+The most important part is ensuring that the `count` property of all resources is set to `1` if your variable is `true`, and `0` if it is `false`.
 
 ### Additional information
 

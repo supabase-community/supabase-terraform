@@ -83,7 +83,7 @@ resource "docker_container" "supabase-postgres" {
   # The file located at volumes/db/config/postgresql.conf will be uploaded into the 'pg_config' volume
   # You can customise this file and then run 'terraform apply' to apply the updated config
   upload {
-    source = "${path.root}/volumes/db/config/postgresql.conf"
+    source = "${path.module}/volumes/db/config/postgresql.conf"
     file   = "/etc/postgresql/postgresql.conf"
   }
 
@@ -97,22 +97,22 @@ resource "docker_container" "supabase-postgres" {
 
   # Upload our init scripts
   upload {
-    content = file("${path.root}/volumes/db/init/sql/00-initial-schema.sql")
+    content = file("${path.module}/volumes/db/init/sql/00-initial-schema.sql")
     file    = "/home/init/00-initial-schema.sql"
   }
 
   upload {
-    content = file("${path.root}/volumes/db/init/sql/01-auth-schema.sql")
+    content = file("${path.module}/volumes/db/init/sql/01-auth-schema.sql")
     file    = "/home/init/01-auth-schema.sql"
   }
 
   upload {
-    content = file("${path.root}/volumes/db/init/sql/02-storage-schema.sql")
+    content = file("${path.module}/volumes/db/init/sql/02-storage-schema.sql")
     file    = "/home/init/02-storage-schema.sql"
   }
 
   upload {
-    content = file("${path.root}/volumes/db/init/sql/03-post-setup.sql")
+    content = file("${path.module}/volumes/db/init/sql/03-post-setup.sql")
     file    = "/home/init/03-post-setup.sql"
   }
 }
@@ -162,7 +162,7 @@ resource "docker_container" "supabase-kong" {
   ]
 
   upload {
-    content = templatefile(abspath("${path.root}/volumes/api/kong.tpl"), {
+    content = templatefile(abspath("${path.module}/volumes/api/kong.tpl"), {
       ANON_KEY   = var.ANON_KEY,
       SECRET_KEY = var.SERVICE_ROLE_KEY,
       META_URL   = var.META_URL,

@@ -1,14 +1,3 @@
-
-resource "docker_image" "watchtower" {
-  name         = "containrrr/watchtower:latest"
-  keep_locally = true
-}
-
-resource "docker_image" "portainer" {
-  name         = "cr.portainer.io/portainer/portainer-ce:latest"
-  keep_locally = true
-}
-
 resource "docker_image" "supabase-postgres" {
   name         = "supabase/postgres:14.1.0"
   keep_locally = true

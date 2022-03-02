@@ -1,10 +1,8 @@
-terraform {
-  required_providers {
-    docker = {
-      source  = "kreuzwerker/docker"
-      version = "~> 2.16.0"
-    }
-  }
+module "WithSupabase" {
+  source = "./supabase"
 }
 
-provider "docker" {}
+
+module "WithPlugins" {
+  source = "./plugins"
+}
