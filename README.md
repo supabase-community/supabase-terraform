@@ -47,7 +47,7 @@ For example, there is a `USE_PORTAINER` variable block. Inside this block, there
     - Environment variable options: https://containrrr.dev/watchtower/arguments/
     - HTTP API (to trigger image and container updates): https://containrrr.dev/watchtower/http-api-mode/
 
-###Adding a new plugin
+### Adding a new plugin
 
 First, you need to ensure that it is possible to toggle the plugin. To do this, add a new `variable` block in `./plugins/definitions/provider.tf`;
 
