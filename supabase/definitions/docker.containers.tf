@@ -57,7 +57,7 @@ resource "docker_container" "supabase-postgres" {
   }
   networks_advanced {
     name    = "supabase-network"
-    aliases = ["supabase-db"]
+    aliases = ["db"]
   }
   env = [
     "POSTGRES_PASSWORD=${var.POSTGRES_PASSWORD}",
@@ -129,7 +129,7 @@ resource "docker_container" "supabase-studio" {
   }
   networks_advanced {
     name    = "supabase-network"
-    aliases = ["supabase-studio"]
+    aliases = ["studio"]
   }
   env = [
     "SUPABASE_URL=http://${var.KONG_URL}:${var.KONG_HTTP_PORT}",
@@ -143,7 +143,7 @@ resource "docker_container" "supabase-kong" {
 
   networks_advanced {
     name    = "supabase-network"
-    aliases = ["supabase-kong"]
+    aliases = ["kong"]
   }
   ports {
     internal = 8000
@@ -190,7 +190,7 @@ resource "docker_container" "pg-meta" {
   }
   networks_advanced {
     name    = "supabase-network"
-    aliases = ["supabase-meta"]
+    aliases = ["meta"]
   }
   env = [
     "PG_META_PORT=${var.META_PORT}",
@@ -212,7 +212,7 @@ resource "docker_container" "supabase-realtime" {
   }
   networks_advanced {
     name    = "supabase-network"
-    aliases = ["supabase-realtime"]
+    aliases = ["realtime"]
   }
   env = [
     "DB_HOST=${var.POSTGRES_HOST}",
@@ -244,7 +244,7 @@ resource "docker_container" "supabase-storage" {
   }
   networks_advanced {
     name    = "supabase-network"
-    aliases = ["supabase-storage"]
+    aliases = ["storage"]
   }
   mounts {
     source = docker_volume.storage_data.name
@@ -281,7 +281,7 @@ resource "docker_container" "supabase-auth" {
   }
   networks_advanced {
     name    = "supabase-network"
-    aliases = ["supabase-auth"]
+    aliases = ["auth"]
   }
   env = [
     "GOTRUE_API_HOST=0.0.0.0",
@@ -329,7 +329,7 @@ resource "docker_container" "supabase-rest" {
   }
   networks_advanced {
     name    = "supabase-network"
-    aliases = ["supabase-rest"]
+    aliases = ["rest"]
   }
   env = [
     "PGRST_DB_URI=postgres://${var.POSTGRES_USER}:${var.POSTGRES_PASSWORD}@${var.POSTGRES_HOST}:${var.POSTGRES_PORT}/${var.POSTGRES_DB}",
