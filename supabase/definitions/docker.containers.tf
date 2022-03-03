@@ -1,28 +1,12 @@
-# # Uncomment these if you want to add Portainer to your installation
-# # This is recommended as it makes managing the containers significantly easier, but is entirely optional
-# resource "docker_container" "portainer" {
-#   image = "cr.portainer.io/portainer/portainer-ce:latest"
-#   name  = "portainer"
-#   ports {
-#     internal = 8000
-#     external = 44997
-#   }
-#   ports {
-#     internal = 9000
-#     external = 9000
-#   }
-# }
+module "generate_jwt_anon_key" {
+  source  = "github.com/matti/terraform-shell-resource"
+  command = "docker run --rm ghcr.io/chronsyn/docker-jwt-generator:master -e --role=\"anon\" --secret=\"'${random_password.JWT_SECRET.result}'\" --issuer=\"supabase\""
+}
 
-# # Uncomment these if you want to add Watchtower to your installation
-# # This is useful if you're also deploying other containers to the same host and want to automatically update them as new images are released
-# resource "docker_container" "watchtower" {
-#   image = "containrrr/watchtower:latest"
-#   name  = "watchtower"
-#   ports {
-#     internal = 8080
-#     external = 8091
-#   }
-# }
+module "generate_jwt_service_role_key" {
+  source  = "github.com/matti/terraform-shell-resource"
+  command = "docker run --rm ghcr.io/chronsyn/docker-jwt-generator:master -e --role=\"service_role\" --secret=\"'${random_password.JWT_SECRET.result}'\" --issuer=\"supabase\""
+}
 
 resource "docker_volume" "pg_data" {
   name = "pg_data"
@@ -60,7 +44,7 @@ resource "docker_container" "supabase-postgres" {
     aliases = ["db"]
   }
   env = [
-    "POSTGRES_PASSWORD=${var.POSTGRES_PASSWORD}",
+    "POSTGRES_PASSWORD=${random_password.POSTGRES_PASSWORD.result}",
     "PGDATA=/var/lib/postgresql/data"
   ]
   command = ["postgres", "-c", "config-file=/etc/postgresql/postgresql.conf"]
@@ -163,8 +147,8 @@ resource "docker_container" "supabase-kong" {
 
   upload {
     content = templatefile(abspath("${path.module}/volumes/api/kong.tpl"), {
-      ANON_KEY   = var.ANON_KEY,
-      SECRET_KEY = var.SERVICE_ROLE_KEY,
+      ANON_KEY   = module.generate_jwt_anon_key.stdout,
+      SECRET_KEY = module.generate_jwt_service_role_key.stdout,
       META_URL   = var.META_URL,
       META_PORT  = var.META_PORT,
     })
@@ -195,9 +179,8 @@ resource "docker_container" "pg-meta" {
   env = [
     "PG_META_PORT=${var.META_PORT}",
     "PG_META_DB_HOST=${var.POSTGRES_HOST}",
-    "PG_META_DB_PASSWORD=${var.POSTGRES_PASSWORD}",
+    "PG_META_DB_PASSWORD=${random_password.POSTGRES_PASSWORD.result}",
   ]
-  # entrypoint = ["postgres-meta"]
 }
 
 resource "docker_container" "supabase-realtime" {
@@ -218,10 +201,10 @@ resource "docker_container" "supabase-realtime" {
     "DB_HOST=${var.POSTGRES_HOST}",
     "DB_PORT=${var.POSTGRES_PORT}",
     "DB_USER=${var.POSTGRES_USER}",
-    "DB_PASS=${var.POSTGRES_PASSWORD}",
+    "DB_PASS=${random_password.POSTGRES_PASSWORD.result}",
     "DB_SSL=false",
     "PORT=4000",
-    "JWT_SECRET=${var.JWT_SECRET}",
+    "JWT_SECRET=${random_password.JWT_SECRET.result}",
     "REPLICATION_MODE=RLS",
     "REPLICATION_POLL_INTERVAL=100",
     "SECURE_CHANNELS=true",
@@ -240,7 +223,7 @@ resource "docker_container" "supabase-storage" {
   ]
   ports {
     internal = 5000
-    # external = 5000
+    external = 5000
   }
   networks_advanced {
     name    = "supabase-network"
@@ -252,11 +235,11 @@ resource "docker_container" "supabase-storage" {
     type   = "volume"
   }
   env = [
-    "ANON_KEY=${var.ANON_KEY}",
-    "SERVICE_KEY=${var.SERVICE_ROLE_KEY}",
+    "ANON_KEY=${module.generate_jwt_anon_key.stdout}",
+    "SERVICE_KEY=${module.generate_jwt_service_role_key.stdout}",
     "POSTGREST_URL=http://rest:3000",
-    "PGRST_JWT_SECRET=${var.JWT_SECRET}",
-    "DATABASE_URL=postgres://${var.POSTGRES_USER}:${var.POSTGRES_PASSWORD}@${var.POSTGRES_HOST}:${var.POSTGRES_PORT}/postgres",
+    "PGRST_JWT_SECRET=${random_password.JWT_SECRET.result}",
+    "DATABASE_URL=postgres://${var.POSTGRES_USER}:${random_password.POSTGRES_PASSWORD.result}@${var.POSTGRES_HOST}:${var.POSTGRES_PORT}/postgres",
     "PGOPTIONS=-c search_path=storage,public",
     "FILE_SIZE_LIMIT=52428800", // Value in bytes
     "STORAGE_BACKEND=file",
@@ -287,11 +270,11 @@ resource "docker_container" "supabase-auth" {
     "GOTRUE_API_HOST=0.0.0.0",
     "GOTRUE_API_PORT=9999",
     "GOTRUE_DB_DRIVER=postgres",
-    "GOTRUE_DB_DATABASE_URL=postgres://${var.POSTGRES_USER}:${var.POSTGRES_PASSWORD}@${var.POSTGRES_HOST}:${var.POSTGRES_PORT}/${var.POSTGRES_DB}?search_path=auth",
+    "GOTRUE_DB_DATABASE_URL=postgres://${var.POSTGRES_USER}:${random_password.POSTGRES_PASSWORD.result}@${var.POSTGRES_HOST}:${var.POSTGRES_PORT}/${var.POSTGRES_DB}?search_path=auth",
     "GOTRUE_SITE_URL=${var.SITE_URL}",
     "GOTRUE_URI_ALLOW_LIST=${var.ADDITIONAL_REDIRECT_URLS}",
     "GOTRUE_DISABLE_SIGNUP=${var.DISABLE_SIGNUP}",
-    "GOTRUE_JWT_SECRET=${var.JWT_SECRET}",
+    "GOTRUE_JWT_SECRET=${random_password.JWT_SECRET.result}",
     "GOTRUE_JWT_EXPIRY=${var.JWT_EXPIRY}",
     "GOTRUE_JWT_DEFAULT_GROUP_NAME=authenticated",
     "GOTRUE_EXTERNAL_EMAIL_ENABLED=${var.ENABLE_EMAIL_SIGNUP}",
@@ -332,10 +315,10 @@ resource "docker_container" "supabase-rest" {
     aliases = ["rest"]
   }
   env = [
-    "PGRST_DB_URI=postgres://${var.POSTGRES_USER}:${var.POSTGRES_PASSWORD}@${var.POSTGRES_HOST}:${var.POSTGRES_PORT}/${var.POSTGRES_DB}",
+    "PGRST_DB_URI=postgres://${var.POSTGRES_USER}:${random_password.POSTGRES_PASSWORD.result}@${var.POSTGRES_HOST}:${var.POSTGRES_PORT}/${var.POSTGRES_DB}",
     "PGRST_DB_SCHEMAS=public,storage",
     "PGRST_DB_ANON_ROLE=anon",
-    "PGRST_JWT_SECRET=${var.JWT_SECRET}",
+    "PGRST_JWT_SECRET=${random_password.JWT_SECRET.result}",
     "PGRST_DB_USE_LEGACY_GUCS=false"
   ]
   command = ["/bin/postgrest"]

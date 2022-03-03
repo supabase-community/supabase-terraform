@@ -8,17 +8,26 @@ This repo is still a work in progress - it should **NOT** be used for production
 
 Known issues such as this will be resolved in due course.
 
+### Secure values
+
+Please note that your Postgres password, JWT secret and JWT tokens are automatically generated during setup. In order to retrieve these values for use in an application:
+
+- Your `anon_key` and `service_role_key` can be found in the `kong_data` docker volume, inside the `kong.yml` file
+- Your `jwt_secret` can be found in the environmental variables of the `supabase-auth` docker container
+- Your `postgres_password` can be found in the environmental variables of the `db` docker container
+
+As of writing, these values are not output to the terminal or disk as they are considered very sensitive.
+
+The Postgres password is 128 characters in length, while the JWT secret is 64 characters in length. If you wish to adjust these settings, change the value of the `length` properties in `random_password.POSTGRES_PASSWORD` and `random_password.JWT_SECRET` respectively (both are in the `./supabase/definitions/dotenv.tf` file).
+
 ### Instructions
 
 1. Install the Terraform CLI - instructions at https://www.terraform.io/downloads
-2. Open up `./supabase/definitions/dotenv.tf.example` file (in this repo) in your code editor
-3. Inside, you will find all the variables that are used to setup the Supabase stack
-4. You should ensure that you change any which are marked as sensitive
-5. Once you have made your changes, save the file, and then rename it to `dotenv.tf`
-   a. You can rename it to any filename as long as the file extension it `.tf`, but `dotenv.tf` is already included in `.gitignore` so you won't accidentally commit it
-6. Repeat steps 2 through 5 for the `./plugins/defintions/dotenv.tf.example` file
-7. Run `terraform init` from the root of this repo
-8. Run `terraform apply` and type `yes` when prompted
+2. Rename `./supabase/definitions/dotenv.tf.example` to `./supabase/definitions/dotenv.tf`
+   This file includes the majority of Supabase-related environment variables
+3. Repeat steps 2 through 4 for the `./plugins/defintions/dotenv.tf.example` file
+4. Run `terraform init` from the root of this repo
+5. Run `terraform apply` and type `yes` when prompted
 
 To stop the stack, type `terraform destroy` and type `yes` when prompted.
 

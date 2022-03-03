@@ -1,36 +1,21 @@
 
 # Security config
-variable "POSTGRES_PASSWORD" {
-  type        = string
-  default     = "postgres"
-  description = "CHANGE THIS BEFORE DEPLOYING"
-  sensitive   = true
+
+# We will automatically generate a secure password for Postgres
+resource "random_password" "POSTGRES_PASSWORD" {
+  length  = 128
+  special = false
 }
 
-variable "JWT_SECRET" {
-  type        = string
-  default     = "your-super-secret-jwt-token-with-at-least-32-characters-long"
-  description = "CHANGE THIS BEFORE DEPLOYING"
-  sensitive   = true
+# We will automatically generate a JWT secret
+resource "random_password" "JWT_SECRET" {
+  length  = 64
+  special = false
 }
 
 variable "JWT_EXPIRY" {
   type    = number
   default = 3600
-}
-
-variable "ANON_KEY" {
-  type        = string
-  default     = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyAgCiAgICAicm9sZSI6ICJhbm9uIiwKICAgICJpc3MiOiAic3VwYWJhc2UtZGVtbyIsCiAgICAiaWF0IjogMTY0MTc2OTIwMCwKICAgICJleHAiOiAxNzk5NTM1NjAwCn0.dc_X5iR_VP_qT0zsiyj_I_OZ2T9FtRU2BBNWN8Bu4GE"
-  description = "CHANGE THIS BEFORE DEPLOYING"
-  sensitive   = true
-}
-
-variable "SERVICE_ROLE_KEY" {
-  type        = string
-  default     = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyAgCiAgICAicm9sZSI6ICJzZXJ2aWNlX3JvbGUiLAogICAgImlzcyI6ICJzdXBhYmFzZS1kZW1vIiwKICAgICJpYXQiOiAxNjQxNzY5MjAwLAogICAgImV4cCI6IDE3OTk1MzU2MDAKfQ.DaYlNEoUrrEn2Ig7tqibS-PHK5vgusbcbo7X36XVt4Q"
-  description = "CHANGE THIS BEFORE DEPLOYING"
-  sensitive   = true
 }
 
 # API Config

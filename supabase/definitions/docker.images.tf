@@ -38,5 +38,8 @@ resource "docker_image" "supabase-auth" {
   keep_locally = true
 }
 
-# TODO: Add storage image
-# resource "docker_image" "" {}
+# Used to generate JWT's during intial setup
+resource "docker_image" "jwt-generator" {
+  name         = "ghcr.io/chronsyn/docker-jwt-generator:master"
+  keep_locally = true
+}
