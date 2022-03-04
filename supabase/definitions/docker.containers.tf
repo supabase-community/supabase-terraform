@@ -25,7 +25,8 @@ resource "docker_volume" "kong_data" {
 }
 
 resource "docker_volume" "storage_data" {
-  name = "storage_data"
+  name  = "storage_data"
+  count = var.ENABLE_STORAGE ? 1 : 0
 }
 
 resource "docker_network" "supabase-network" {
@@ -33,7 +34,7 @@ resource "docker_network" "supabase-network" {
 }
 
 resource "docker_container" "supabase-postgres" {
-  image = "supabase/postgres:14.1.0"
+  image = docker_image.supabase-postgres.name
   name  = var.POSTGRES_HOST
   ports {
     internal = var.POSTGRES_PORT
@@ -102,7 +103,7 @@ resource "docker_container" "supabase-postgres" {
 }
 
 resource "docker_container" "supabase-studio" {
-  image = "supabase/studio:latest"
+  image = docker_image.supabase-studio.name
   name  = "supabase-studio"
   depends_on = [
     docker_container.supabase-postgres
@@ -116,13 +117,14 @@ resource "docker_container" "supabase-studio" {
     aliases = ["studio"]
   }
   env = [
-    "SUPABASE_URL=http://${var.KONG_URL}:${var.KONG_HTTP_PORT}",
+    # You should not change this as Nginx plugin relies on the service being accessible at this location
+    "SUPABASE_URL=http://kong:8000",
     "STUDIO_PG_META_URL=http://${var.META_URL}:${var.META_PORT}",
   ]
 }
 
 resource "docker_container" "supabase-kong" {
-  image = "kong:2.1"
+  image = docker_image.supabase-kong.name
   name  = "supabase-kong"
 
   networks_advanced {
@@ -163,7 +165,7 @@ resource "docker_container" "supabase-kong" {
 }
 
 resource "docker_container" "pg-meta" {
-  image = "supabase/postgres-meta:v0.29.0"
+  image = docker_image.pg-meta.name
   name  = "pg-meta"
   depends_on = [
     docker_container.supabase-postgres
@@ -184,10 +186,11 @@ resource "docker_container" "pg-meta" {
 }
 
 resource "docker_container" "supabase-realtime" {
-  image = "supabase/realtime:v0.19.3"
+  image = docker_image.supabase-realtime.name
   name  = "supabase-realtime"
   depends_on = [
-    docker_container.supabase-postgres
+    docker_container.supabase-postgres,
+    null_resource.db_setup_03
   ]
   ports {
     internal = 4000
@@ -206,16 +209,21 @@ resource "docker_container" "supabase-realtime" {
     "PORT=4000",
     "JWT_SECRET=${random_password.JWT_SECRET.result}",
     "REPLICATION_MODE=RLS",
-    "REPLICATION_POLL_INTERVAL=100",
+    "REPLICATION_POLL_INTERVAL=300",
+    "SUBSCRIPTION_SYNC_INTERVAL=60000",
     "SECURE_CHANNELS=true",
     "SLOT_NAME=supabase_realtime_rls",
-    "TEMPORARY_SLOT=true"
+    "TEMPORARY_SLOT=true",
+    "DB_RECONNECT_BACKOFF_MIN=1000",
+    "DB_RECONNECT_BACKOFF_MAX=10000",
+    "MAX_RECORD_BYTES=1048576" // Value in bytes - default is 1048576 (1MB)
   ]
 }
 
 resource "docker_container" "supabase-storage" {
-  image = "supabase/storage-api:v0.10.0"
+  image = docker_image.supabase-storage[0].name
   name  = "supabase-storage"
+  count = var.ENABLE_STORAGE ? 1 : 0
   depends_on = [
     docker_container.supabase-postgres,
     docker_container.supabase-rest,
@@ -230,7 +238,7 @@ resource "docker_container" "supabase-storage" {
     aliases = ["storage"]
   }
   mounts {
-    source = docker_volume.storage_data.name
+    source = docker_volume.storage_data[0].name
     target = "/var/lib/storage"
     type   = "volume"
   }
@@ -251,7 +259,7 @@ resource "docker_container" "supabase-storage" {
 }
 
 resource "docker_container" "supabase-auth" {
-  image = "supabase/gotrue:v2.2.12"
+  image = docker_image.supabase-auth.name
   name  = "supabase-auth"
   depends_on = [
     docker_container.supabase-postgres,
@@ -301,7 +309,7 @@ resource "docker_container" "supabase-auth" {
 }
 
 resource "docker_container" "supabase-rest" {
-  image = "postgrest/postgrest:v9.0.0"
+  image = docker_image.supabase-rest.name
   name  = "supabase-rest"
   depends_on = [
     docker_container.supabase-postgres

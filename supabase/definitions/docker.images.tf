@@ -1,11 +1,12 @@
 resource "docker_image" "supabase-postgres" {
-  name         = "supabase/postgres:14.1.0"
+  name         = "supabase/postgres:latest"
   keep_locally = true
 }
 
 resource "docker_image" "supabase-storage" {
-  name         = "supabase/storage-api:v0.10.0"
+  name         = "supabase/storage-api:latest"
   keep_locally = true
+  count        = var.ENABLE_STORAGE ? 1 : 0
 }
 
 resource "docker_image" "supabase-studio" {
@@ -19,22 +20,22 @@ resource "docker_image" "supabase-kong" {
 }
 
 resource "docker_image" "pg-meta" {
-  name         = "supabase/postgres-meta:v0.29.0"
+  name         = "supabase/postgres-meta:latest"
   keep_locally = true
 }
 
 resource "docker_image" "supabase-realtime" {
-  name         = "supabase/realtime:v0.19.3"
+  name         = "supabase/realtime:latest"
   keep_locally = true
 }
 
 resource "docker_image" "supabase-rest" {
-  name         = "postgrest/postgrest:v9.0.0"
+  name         = "postgrest/postgrest:latest"
   keep_locally = true
 }
 
 resource "docker_image" "supabase-auth" {
-  name         = "supabase/gotrue:v2.2.12"
+  name         = "supabase/gotrue:latest"
   keep_locally = true
 }
 

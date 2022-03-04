@@ -52,9 +52,15 @@ For example, there is a `USE_PORTAINER` variable block. Inside this block, there
 
 - **Current plugins**
   - Portainer (disabled by default)
+  - Nginx (disabled by default)
+    - This plugin is already configured for use with Supabase
+    - Config file: `./plugins/definitions/WithNginx.tf`
+    - All variables for Nginx are stored in this file
+    - You should ensure you read the comments left in that file if you intend to use this plugin
   - Watchtower (disabled by default)
     - Environment variable options: https://containrrr.dev/watchtower/arguments/
     - HTTP API (to trigger image and container updates): https://containrrr.dev/watchtower/http-api-mode/
+    - The HTTP API token for watchtower is a 128-character random password
 
 ### Adding a new plugin
 
@@ -93,7 +99,7 @@ resource "docker_container" "plugin" {
 **The above is just an example!**
 The most important part is ensuring that the `count` property of all resources is set to `1` if your variable is `true`, and `0` if it is `false`.
 
-If your container requires any secret environmental variables, place them in `./plugins/defintions/dotenv.tf`.
+If your container requires any secret environmental variables, place them in `./plugins/defintions/dotenv.tf`. Any non-secret variables should be stored in the same file as the plugin.
 
 ### Additional information
 

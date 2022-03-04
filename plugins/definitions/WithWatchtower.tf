@@ -1,5 +1,6 @@
 resource "docker_volume" "watchtower_config" {
-  name = "watchtower-config"
+  name  = "watchtower-config"
+  count = var.USE_WATCHTOWER ? 1 : 0
 }
 
 resource "docker_image" "watchtower" {
@@ -25,7 +26,7 @@ resource "docker_container" "watchtower" {
   }
 
   mounts {
-    source = docker_volume.watchtower_config.name
+    source = docker_volume.watchtower_config[0].name
     target = "/config"
     type   = "volume"
   }
@@ -43,6 +44,6 @@ resource "docker_container" "watchtower" {
     "WATCHTOWER_INCLUDE_STOPPED=true",
     "DOCKER_CONFIG=/config",
     "HTTP-API-UPDATE=true",
-    "WATCHTOWER_HTTP_API_TOKEN=${var.WATCHTOWER_HTTP_API_TOKEN}",
+    "WATCHTOWER_HTTP_API_TOKEN=${random_password.WATCHTOWER_HTTP_API_TOKEN.result}",
   ]
 }

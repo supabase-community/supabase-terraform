@@ -6,3 +6,6 @@ terraform.tfstate
 terraform.tfstate.backup
 .terraform.tfstate.lock.info
 .DS_Store
+
+*.cer
+*.pem

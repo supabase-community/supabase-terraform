@@ -20,3 +20,9 @@ variable "USE_WATCHTOWER" {
   default     = false
   description = "Set default to true if you want to add watchtower to the deployment"
 }
+
+variable "USE_NGINX" {
+  type        = bool
+  default     = false
+  description = "Set default to true if you want to add nginx to the deployment"
+}

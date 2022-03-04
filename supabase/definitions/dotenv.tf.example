@@ -3,7 +3,7 @@
 
 # We will automatically generate a secure password for Postgres
 resource "random_password" "POSTGRES_PASSWORD" {
-  length  = 128
+  length  = 96
   special = false
 }
 
@@ -98,23 +98,6 @@ variable "POSTGRES_DB" {
   default = "postgres"
 }
 
-# Kong config
-variable "KONG_URL" {
-  type        = string
-  default     = "kong"
-  description = "Combines with KONG_HTTP_PORT to form the Kong URL"
-}
-
-variable "KONG_HTTP_PORT" {
-  type    = number
-  default = 8000
-}
-
-variable "KONG_HTTPS_PORT" {
-  type    = number
-  default = 8443
-}
-
 
 # Meta config
 variable "META_URL" {
@@ -182,4 +165,10 @@ variable "EMAIL_MAGICLINK_TEMPLATE_URL" {
   type        = string
   default     = ""
   description = "A URL which points towards a HTML template which allows users to login with a magic link"
+}
+
+variable "ENABLE_STORAGE" {
+  type        = bool
+  default     = true
+  description = "Set this to false if you don't want the Supabase storage container to be created"
 }
