@@ -1,4 +1,5 @@
 dotenv.tf
+thirdpartyauth.dotenv.tf
 kong.yml
 .terraform
 .terraform.lock.hcl
