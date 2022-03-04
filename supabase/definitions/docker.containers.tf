@@ -203,20 +203,25 @@ resource "docker_container" "supabase-realtime" {
   env = [
     "DB_HOST=${var.POSTGRES_HOST}",
     "DB_PORT=${var.POSTGRES_PORT}",
+    "DB_NAME=${var.POSTGRES_DB}",
     "DB_USER=${var.POSTGRES_USER}",
-    "DB_PASS=${random_password.POSTGRES_PASSWORD.result}",
+    "DB_PASSWORD=${random_password.POSTGRES_PASSWORD.result}",
     "DB_SSL=false",
     "PORT=4000",
     "JWT_SECRET=${random_password.JWT_SECRET.result}",
     "REPLICATION_MODE=RLS",
     "REPLICATION_POLL_INTERVAL=300",
-    "SUBSCRIPTION_SYNC_INTERVAL=60000",
     "SECURE_CHANNELS=true",
     "SLOT_NAME=supabase_realtime_rls",
     "TEMPORARY_SLOT=true",
-    "DB_RECONNECT_BACKOFF_MIN=1000",
-    "DB_RECONNECT_BACKOFF_MAX=10000",
-    "MAX_RECORD_BYTES=1048576" // Value in bytes - default is 1048576 (1MB)
+  ]
+
+
+  restart = "unless-stopped"
+  command = [
+    "bash",
+    "-c",
+    "./prod/rel/realtime/bin/realtime eval Realtime.Release.migrate && ./prod/rel/realtime/bin/realtime start"
   ]
 }
 
