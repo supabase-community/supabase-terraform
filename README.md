@@ -106,7 +106,7 @@ The most important part is ensuring that the `count` property of all resources i
 
 If your container requires any secret environmental variables, place them in `./plugins/defintions/dotenv.tf`. Any non-secret variables should be stored in the same file as the plugin.
 
-### Deploying to a remote VPC
+### Deploying to a remote VPS
 
 **This feature is still a work in progress!**
 
