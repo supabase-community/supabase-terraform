@@ -1,5 +1,13 @@
+module "WithDeployment" {
+  source = "./deploy"
+}
+
+
 module "WithSupabase" {
   source = "./supabase"
+  depends_on = [
+    module.WithDeployment
+  ]
 }
 
 module "WithPlugins" {
@@ -8,3 +16,4 @@ module "WithPlugins" {
     module.WithSupabase
   ]
 }
+

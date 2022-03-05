@@ -106,6 +106,14 @@ The most important part is ensuring that the `count` property of all resources i
 
 If your container requires any secret environmental variables, place them in `./plugins/defintions/dotenv.tf`. Any non-secret variables should be stored in the same file as the plugin.
 
+### Deploying to a remote VPC
+
+**This feature is still a work in progress!**
+
+I am in the process of integrating support for deploying the stack to remote cloud providers such as DigitalOcean.
+
+Current status: A suitable DigitalOcean droplet is being created, but deployment of the stack to it is not yet working. Please don't attempt to use remote deployment at this time - it's disabled in the config by default, but you're responsible for any costs, bugs or issues that happen if you choose to enable it.
+
 ### Additional information
 
 This repo allows you to customise the `postgresql.conf` file before deployment. The default config provided within the Supabase docker image (as of 28th February 2022) is included at `./volumes/db/config/postgresql.conf`. The default config should be sufficient, but feel free to adjust this according to your requirements.

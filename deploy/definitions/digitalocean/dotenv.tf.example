@@ -1,0 +1,23 @@
+resource "random_password" "DEPLOYMENT_VPC_NAME_SUFFIX" {
+  length  = 8
+  special = false
+}
+
+variable "DIGITAL_OCEAN_DOTOKEN" {
+  description = "Digital Ocean Token"
+  type        = string
+  default     = ""
+}
+
+variable "DIGITAL_OCEAN_DROPLET_SSH_TOKEN_ID_LIST" {
+  description = "Digital Ocean Droplet SSH Token ID's"
+  type        = set(string)
+  default     = [""]
+  sensitive   = true
+}
+
+variable "SSH_PRIVATE_KEY_FILE_LOCATION" {
+  description = "Absolute path to SSH private key file"
+  type        = string
+  default     = ""
+}
