@@ -5,7 +5,8 @@ resource "docker_image" "portainer" {
 }
 
 resource "docker_volume" "portainer_data" {
-  name = "portainer-data"
+  name  = "portainer-data"
+  count = var.USE_PORTAINER ? 1 : 0
 }
 
 resource "docker_container" "portainer" {
@@ -14,16 +15,12 @@ resource "docker_container" "portainer" {
   count   = var.USE_PORTAINER ? 1 : 0
   restart = "always"
   ports {
-    internal = 8000
-    external = 44997
-  }
-  ports {
     internal = 9000
     external = 9000
   }
 
   mounts {
-    source = docker_volume.portainer_data.name
+    source = docker_volume.portainer_data[0].name
     target = "/data"
     type   = "volume"
   }

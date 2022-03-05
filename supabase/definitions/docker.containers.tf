@@ -10,6 +10,10 @@ module "generate_jwt_service_role_key" {
 
 resource "docker_volume" "pg_data" {
   name = "pg_data"
+  lifecycle {
+    prevent_destroy       = false
+    create_before_destroy = true
+  }
 }
 
 resource "docker_volume" "pg_init" {
@@ -18,6 +22,10 @@ resource "docker_volume" "pg_init" {
 
 resource "docker_volume" "pg_config" {
   name = "pg_config"
+  lifecycle {
+    prevent_destroy       = false
+    create_before_destroy = true
+  }
 }
 
 resource "docker_volume" "kong_data" {
@@ -27,6 +35,10 @@ resource "docker_volume" "kong_data" {
 resource "docker_volume" "storage_data" {
   name  = "storage_data"
   count = var.ENABLE_STORAGE ? 1 : 0
+  lifecycle {
+    prevent_destroy       = false
+    create_before_destroy = true
+  }
 }
 
 resource "docker_network" "supabase-network" {
