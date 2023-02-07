@@ -1,3 +1,7 @@
+# Note #
+
+This repo has been mostly superceded by an alternative terraform approach - see https://docs.digitalocean.com/developer-center/hosting-supabase-on-digitalocean/ for details. Although that guide is specifically for hosting on DigitalOcean, the core practices it demonstrates should apply to most other cloud providers.
+
 # Terraform Supabase
 
 This repo includes an example of starting a local copy of the Supabase stack via Terraform. At this time, it does not support deployment to a remote VPS.
